@@ -14,7 +14,7 @@ fn main() {
         let mut line = String::new();
         let mut buff = [ ' ', ' ', ' ' ];
         //HTML、CSS、js匹配规则
-        if suff==".html" {
+        if suff==".html" || suff==".css" || suff==".js" {
             while data.read_line(&mut line).unwrap()>0 {
                 for x in line.chars() {
                     match x {
