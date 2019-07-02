@@ -7,15 +7,15 @@ use std::io::{Write, BufWriter};
 fn main() {
     let args: Vec<String> = env::args().collect();
     for i in 1..args.len() {
-        let (name, suff) = args[i].split_at( args[i].rfind('.').unwrap() );
-        let mut file = BufReader::new( File::open(&args[i]).unwrap() );
+        let (name, suff) = args[i].split_at(args[i].rfind('.').unwrap());
+        let mut file = BufReader::new(File::open(&args[i]).unwrap());
         let mut base = String::new();
         let mut mini = String::new();
         if file.read_to_string(&mut base).is_ok() {
             match suff {
                 //CSS文件
-                _ if suff==".css" => mini.push_str( &reduce_css(&base) ),
-                _ if suff==".html" => {
+                _ if suff == ".css" => mini.push_str(&reduce_css(&base)),
+                _ if suff == ".html" => {
                     /* mode值说明：
                      * “1”表示在“'...'”内
                      * “2”表示在“"..."”内
@@ -71,12 +71,17 @@ fn main() {
                             if tags == "</style>" {
                                 mode = 0;
                                 if data != "" {
-                                    mini.push_str( &reduce_css(&data) );
+                                    mini.push_str(&reduce_css(&data));
                                     data = String::new();
                                 }
                                 data.push_str(&tags);
                                 tags = String::new();
-                            } else if tags != "<" && tags != "</" && tags != "</s" && tags != "</st" && tags != "</sty" && tags != "</styl" && tags != "</style" {
+                            } else if tags != "<" && tags != "</" && tags != "</s" &&
+                                       tags != "</st" &&
+                                       tags != "</sty" &&
+                                       tags != "</styl" &&
+                                       tags != "</style"
+                            {
                                 data.push_str(&tags);
                                 tags = String::new();
                             }
@@ -85,12 +90,18 @@ fn main() {
                             if tags == "</script>" {
                                 mode = 0;
                                 if data != "" {
-                                    mini.push_str( &reduce_js(&data) );
+                                    mini.push_str(&reduce_js(&data));
                                     data = String::new();
                                 }
                                 data.push_str(&tags);
                                 tags = String::new();
-                            } else if tags != "<" && tags != "</" && tags != "</s" && tags != "</sc" && tags != "</scr" && tags != "</scri" && tags != "</scrip" && tags != "</script" {
+                            } else if tags != "<" && tags != "</" && tags != "</s" &&
+                                       tags != "</sc" &&
+                                       tags != "</scr" &&
+                                       tags != "</scri" &&
+                                       tags != "</scrip" &&
+                                       tags != "</script"
+                            {
                                 data.push_str(&tags);
                                 tags = String::new();
                             }
@@ -109,11 +120,11 @@ fn main() {
                                 data.push(face);
                                 if tags == "<style" {
                                     mode = 6;
-                                    mini.push_str( &reduce_html(&data) );
+                                    mini.push_str(&reduce_html(&data));
                                     data = String::new();
                                 } else if tags == "<script" {
                                     mode = 7;
-                                    mini.push_str( &reduce_html(&data) );
+                                    mini.push_str(&reduce_html(&data));
                                     data = String::new();
                                 } else {
                                     mode = 0;
@@ -127,11 +138,11 @@ fn main() {
                             if face == '>' {
                                 if tags == "<style" {
                                     mode = 6;
-                                    mini.push_str( &reduce_html(&data) );
+                                    mini.push_str(&reduce_html(&data));
                                     data = String::new();
                                 } else if tags == "<script" {
                                     mode = 7;
-                                    mini.push_str( &reduce_html(&data) );
+                                    mini.push_str(&reduce_html(&data));
                                     data = String::new();
                                 } else {
                                     mode = 0;
@@ -142,14 +153,17 @@ fn main() {
                             data.push(face);
                         }
                     }
-                    mini.push_str( &reduce_html(&data) );
-                },
-                _ if suff==".js" => mini.push_str( &reduce_js(&base) ),
+                    mini.push_str(&reduce_html(&data));
+                }
+                _ if suff == ".js" => mini.push_str(&reduce_js(&base)),
                 _ => {}
             }
-            let minifile = File::create(format!("{}{}{}", name, ".mini", suff)).expect("Unable to create file");
+            let minifile = File::create(format!("{}{}{}", name, ".mini", suff))
+                .expect("Unable to create file");
             let mut minifile = BufWriter::new(minifile);
-            minifile.write_all(mini.as_bytes()).expect("Unable to write data");
+            minifile.write_all(mini.as_bytes()).expect(
+                "Unable to write data",
+            );
         }
     }
 }
@@ -172,12 +186,12 @@ fn reduce_css(data: &str) -> String {
         } else if last == '/' && face == '*' {
             mode = true;
             last = ' ';
-        } else  if face.is_whitespace() {
+        } else if face.is_whitespace() {
             if (!last.is_ascii_punctuation()) && last != ' ' {
                 mini.push(last);
                 last = ' ';
             }
-         } else {
+        } else {
             if (!face.is_ascii_punctuation()) || face == '#' || face == '.' || last != ' ' {
                 mini.push(last);
             }
@@ -227,11 +241,11 @@ fn reduce_html(data: &str) -> String {
             }
             last = face;
         } else if face.is_whitespace() {
-            if ( (!last.is_ascii_punctuation()) || last == '\'' || last == '"' ) && last != ' ' {
+            if ((!last.is_ascii_punctuation()) || last == '\'' || last == '"') && last != ' ' {
                 mini.push(last);
                 last = ' ';
             }
-         } else {
+        } else {
             if (!face.is_ascii_punctuation()) || face == '\'' || face == '"' || last != ' ' {
                 mini.push(last);
             }
@@ -313,7 +327,7 @@ fn reduce_js(data: &str) -> String {
                 mini.push(last);
                 last = ' ';
             }
-         } else {
+        } else {
             if (!face.is_ascii_punctuation()) || last != ' ' {
                 mini.push(last);
             }
